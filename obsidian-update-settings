@@ -1,0 +1,31 @@
+#!/bin/bash
+
+### files and folders from .obsidian/ to copy:
+# plugins/*
+# themes/*
+# community-plugins.json/
+# core-plugins.json/ ???????
+# hotkeys.json/
+
+### files from .obsidian/ not to copy:
+# app.json
+# appearance.json
+# bookmarks.json
+# canvas.json
+# graph.json
+# workspace.json
+
+DEFAULT_SETTINGS_DIR="SettingsTemplate"
+DEST_DIRS=$(ls --directory ~/Notes/*/ | grep -v $DEFAULT_SETTINGS_DIR)
+# echo $DEST_DIRS
+
+for dir in $DEST_DIRS; do
+    echo "$dir"
+    mkdir -p $dir.obsidian/plugins/ $dir.obsidian/themes/
+    cp --recursive -t "$dir.obsidian/plugins/" ~/Notes/$DEFAULT_SETTINGS_DIR/.obsidian/plugins/*
+    cp --recursive -t "$dir.obsidian/themes/" ~/Notes/$DEFAULT_SETTINGS_DIR/.obsidian/themes/*
+    cp --recursive -t "$dir.obsidian/" \
+        ~/Notes/$DEFAULT_SETTINGS_DIR/.obsidian/community-plugins.json \
+        ~/Notes/$DEFAULT_SETTINGS_DIR/.obsidian/core-plugins.json \
+        ~/Notes/$DEFAULT_SETTINGS_DIR/.obsidian/hotkeys.json
+done
