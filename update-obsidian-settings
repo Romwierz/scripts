@@ -9,7 +9,7 @@
 # Use --verbose option to see what files are being copied 
 # 
 # Suggested usage if SRC_DIR and DST_DIRS are in the same directory:
-# ls | grep -v ^SRC_DIR$ | update-obsidian-settings -r -T SRC_DIR
+# ls | grep -v ^SRC_DIR$ | update-obsidian-settings -r -s SRC_DIR
 #
 # Files and folders from .obsidian/ to copy:
 # plugins/*
@@ -52,6 +52,12 @@ print_usage() {
     echo "  -v, --verbose"
     echo "  -r, --recursive"
     echo "  -s, --source"
+    echo ""
+    echo "Examples:"
+    echo "  while in catalog with obsidian vaults:"
+    echo "  ls | grep -v ^SRC_DIR$ | update-obsidian-settings -v -r -s SRC_DIR"
+    echo "  or while anywhere:"
+    echo "  ls DIR_WITH_VAULTS | grep -v ^SRC_DIR$ | update-obsidian-settings -v -r -s SRC_DIR"
 }
 
 parse_args() {
@@ -180,10 +186,11 @@ copy_obsidian_settings_into() {
 
     echo "${GREEN}Applying settings to:${RESET} $dest_obsidian"
 
-    mkdir -p "$dest_obsidian/plugins" "$dest_obsidian/themes"
+    mkdir -p "$dest_obsidian/plugins" "$dest_obsidian/themes" "$dest_obsidian/snippets"
 
     cp "${cp_options[@]}" -t "$dest_obsidian/plugins/" "$SRC_OBSIDIAN_DIR/plugins/"*
     cp "${cp_options[@]}" -t "$dest_obsidian/themes/" "$SRC_OBSIDIAN_DIR/themes/"*
+    cp "${cp_options[@]}" -t "$dest_obsidian/snippets/" "$SRC_OBSIDIAN_DIR/snippets/"*
 
     safe_copy_json_into "$dest_obsidian"
 
