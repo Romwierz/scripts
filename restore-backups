@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Restore backups by replacing the original file with its .bak version
-# Usage: restore-backups FILES... or via stdin
+# Usage: restore-backups BAK_FILES... or via stdin
 
 # -e: exit on error
 # -u: unset variables
