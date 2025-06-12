@@ -3,28 +3,28 @@
 # Search for .obsidian/ in SRC_DIR and copy its content into .obsidian/ in DST_DIR
 # Only specific folders in .obsidian/ are copied
 # 
-# Usage: update-obsidian-settings [-n|--dry-run] [-v|--verbose] [-r|--recursive] -s|--source SRC_DIR DST_DIR... or via stdin
+# Usage: obsidian-update-settings [-n|--dry-run] [-v|--verbose] [-r|--recursive] -s|--source SRC_DIR DST_DIR... or via stdin
 # 
 # Use --recursive option to search for .obsidian/ recursively
 # Use --verbose option to see what files are being copied 
 # 
 # Suggested usage if SRC_DIR and DST_DIRS are in the same directory:
-# ls | grep -v ^SRC_DIR$ | update-obsidian-settings -r -s SRC_DIR
+#   ls | grep -v ^SRC_DIR$ | obsidian-update-settings -r -s SRC_DIR
 #
 # Files and folders from .obsidian/ to copy:
-# plugins/*
-# themes/*
-# community-plugins.json/
-# core-plugins.json/
-# hotkeys.json/
+#   plugins/*
+#   themes/*
+#   community-plugins.json/
+#   core-plugins.json/
+#   hotkeys.json/
 #
 # Files from .obsidian/ not to copy:
-# app.json
-# appearance.json
-# bookmarks.json
-# canvas.json
-# graph.json
-# workspace.json
+#   app.json
+#   appearance.json
+#   bookmarks.json
+#   canvas.json
+#   graph.json
+#   workspace.json
 #
 # ---------- TODO ----------
 # - display information if all files in DST_SIR are already up-to-date
@@ -55,16 +55,37 @@ print_usage() {
     echo ""
     echo "Examples:"
     echo "  while in catalog with obsidian vaults:"
-    echo "  ls | grep -v ^SRC_DIR$ | update-obsidian-settings -v -r -s SRC_DIR"
+    echo "  ls | grep -v ^SRC_DIR$ | obsidian-update-settings -v -r -s SRC_DIR"
     echo "  or while anywhere:"
-    echo "  ls DIR_WITH_VAULTS | grep -v ^SRC_DIR$ | update-obsidian-settings -v -r -s SRC_DIR"
+    echo "  ls DIR_WITH_VAULTS | grep -v ^SRC_DIR$ | obsidian-update-settings -v -r -s SRC_DIR"
+}
+
+# use heredoc to print usage
+# '-' before 'END' removes tab in the beginning of each heredoc line (doesn't work)
+print_usage_heredoc() {
+cat <<-END
+Usage: $(basename "$0") [OPTION] -s SRC_DIR DST_DIRS...
+  or DST_DIRS via stdin
+
+Options:
+  -n, --dry-run
+  -v, --verbose
+  -r, --recursive
+  -s, --source"
+
+Examples:
+  while in catalog with obsidian vaults:
+  ls | grep -v ^SRC_DIR$ | obsidian-update-settings -v -r -s SRC_DIR
+  or while anywhere:
+  ls DIR_WITH_VAULTS | grep -v ^SRC_DIR$ | obsidian-update-settings -v -r -s SRC_DIR
+END
 }
 
 parse_args() {
     while [[ $# -gt 0 ]]; do
         case "$1" in
             (-h|--help)
-                print_usage
+                print_usage_heredoc
                 exit 0
                 ;;
             (-n|--dry-run)
@@ -116,7 +137,7 @@ read_from_stdin() {
 validate_input() {
     if [[ -z "$SRC_DIR" ]]; then
         echo "${RED}Error:${RESET} missing source folder argument."
-        print_usage
+        print_usage_heredoc
         exit 1
     fi
 
@@ -209,7 +230,6 @@ safe_copy_json_into() {
     done
 }
 
-
 parse_args "$@"
 read_from_stdin
 validate_input
@@ -232,3 +252,5 @@ for dest_obsidian in "${ALL_DST_OBSIDIAN_DIRS[@]}"; do
     fi
 
 done
+
+echo "You can now reload Obsidian window.
