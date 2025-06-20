@@ -29,6 +29,20 @@ read_from_stdin() {
     fi
 }
 
+# in case there are nested vault directories
+get_all_vault_dirs() {
+    ALL_VAULT_DIRS=()
+    for dir in "${VAULT_DIRS[@]}"; do
+        found=()
+        
+        # find all vault directories (it has .obsidian/ subdirectory)
+        mapfile -t found < <(find "$dir" -type d -name ".obsidian")
+
+        # remove trailing '.obsidian'
+        ALL_VAULT_DIRS+=("${found[@]%.obsidian}")
+    done
+}
+
 # Find and convert filenames that match pattern 'Pasted image *.png' into 'pasted_image_*.png'
 # and move them into images/
 convert_filenames() {
@@ -81,7 +95,9 @@ if [[ "${#VAULT_DIRS[@]}" -eq 0 ]]; then
         exit 1
     fi
 
-for dir in "${VAULT_DIRS[@]}"; do
+get_all_vault_dirs
+
+for dir in "${ALL_VAULT_DIRS[@]}"; do
     # Check if it's Obsidian vault
     if [[ ! -d "${dir}/.obsidian" ]]; then
         echo "Error: '$dir' is not an Obsidian vault (no .obsidian/ directory inside)."
