@@ -11,9 +11,25 @@ VERBOSE=0
 
 VAULT_DIRS=()
 
-if [[ "$1" == "-v" ]]; then
-    VERBOSE=1
-fi
+parse_args() {
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            (-v|--verbose)
+                VERBOSE=1
+                shift
+                ;;
+            (*)
+                if [[ ! -d "$1" ]]; then
+                    echo "Warning: vault dir '$1' not found." >&2
+                    shift
+                    continue
+                fi
+                VAULT_DIRS+=("$1")
+                shift
+                ;;
+        esac
+    done
+}
 
 log() {
     if [[ "$VERBOSE" -eq 1 ]]; then
@@ -88,6 +104,7 @@ process_files_content() {
     done
 }
 
+parse_args "$@"
 read_from_stdin
 
 if [[ "${#VAULT_DIRS[@]}" -eq 0 ]]; then
