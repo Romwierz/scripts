@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
+# Used in 'rofi-power-menu' to have more precise control
+# over what to do on power related activity.
+#
+# Tasks can be defined in 'todo-before-power-action' wrapper script. 
+
 set -e
 
 command -v todo-before-power-action >/dev/null || {
