@@ -1,0 +1,63 @@
+#!/bin/env bash
+
+# The purpose of this script is to automate uploading (stage, commit, push) local git repo to remote repo.
+#
+# In this particular case the git repo is a folder with notes.
+#
+# Since notes may contain images, another script 'obsidian-convert-imgref-to-md' is also used
+# so images references have appropiate format used in Markdown.
+#
+# The intention is to use this script on power related activity:
+# on startup or on shutdown which is the more natural choice.
+
+set -o pipefail
+
+NOTES_DIR="$HOME/Notes"
+
+# full paths are needed for 'obsidian-convert-imgref-to-md' in case of running outside notes directory
+get_modified_dirs_full_paths() {
+    mapfile -t modified_dirs < <( \
+        git -C "$NOTES_DIR" status --porcelain -z \
+        | tr '\0' '\n' \
+        | sed 's/^...//' \
+        | cut -d/ -f1 \
+        | sort -u \
+    )
+    modified_dirs_full_paths=()
+    for dir in "${modified_dirs[@]}"; do
+        modified_dirs_full_paths+=("$NOTES_DIR/$dir")
+    done
+}
+
+# testing purposes: easily unstage changes by running script with '-r' option
+if [[ "$1" == "-r" ]]; then                
+    git -C "$NOTES_DIR" restore --staged .
+    echo "Changes unstaged:"
+    git -C "$NOTES_DIR" status -s
+    exit 0                             
+fi
+
+get_modified_dirs_full_paths
+
+echo "Modified folders:"
+echo "${modified_dirs_full_paths[@]}"
+obsidian-convert-imgref-to-md -v "${modified_dirs_full_paths[@]}"
+
+# phase 0: display status
+echo "Status:"
+git -C "$NOTES_DIR" status -s
+
+# phase 1: stage
+git -C "$NOTES_DIR" add .
+echo "Status after stage:"
+git -C "$NOTES_DIR" status -s
+
+# phase 2: commit
+git -C "$NOTES_DIR" commit -m "update"
+echo "Status after commit:"
+git -C "$NOTES_DIR" status
+
+# phase 3: push
+git -C "$NOTES_DIR" push
+echo "Status after push:"
+git -C "$NOTES_DIR" status
