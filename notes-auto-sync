@@ -8,11 +8,32 @@
 # so images references have appropiate format used in Markdown.
 #
 # The intention is to use this script on power related activity:
-# on startup or on shutdown which is the more natural choice.
+# on startup or shutdown (the latter being more natural choice).
 
 set -o pipefail
 
 NOTES_DIR="$HOME/Notes"
+
+push=0
+pull=0
+
+parse_args() {
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            (push)
+                push=1
+                shift
+                ;;
+            (pull)
+                pull=1
+                shift
+                ;;
+            (*)
+                shift
+                ;;
+        esac
+    done
+}
 
 # full paths are needed for 'obsidian-convert-imgref-to-md' in case of running outside notes directory
 get_modified_dirs_full_paths() {
@@ -29,35 +50,44 @@ get_modified_dirs_full_paths() {
     done
 }
 
-# testing purposes: easily unstage changes by running script with '-r' option
-if [[ "$1" == "-r" ]]; then                
-    git -C "$NOTES_DIR" restore --staged .
-    echo "Changes unstaged:"
+pull() {
+    pull_result=$(git -C "$NOTES_DIR" pull origin main)
+    pull_status=$?
+
+    if [[ ! "$pull_status" == 0 ]]; then
+        notify-send -t 30000 "notes-auto-sync: ${pull_result}"
+    fi
+}
+
+push() {
+    get_modified_dirs_full_paths
+
+    echo "Modified folders:"
+    echo "${modified_dirs_full_paths[@]}"
+    obsidian-convert-imgref-to-md -v "${modified_dirs_full_paths[@]}"
+
+    # phase 0: display status
+    echo "Status:"
     git -C "$NOTES_DIR" status -s
-    exit 0                             
-fi
 
-get_modified_dirs_full_paths
+    # phase 1: stage
+    git -C "$NOTES_DIR" add .
+    echo "Status after stage:"
+    git -C "$NOTES_DIR" status -s
 
-echo "Modified folders:"
-echo "${modified_dirs_full_paths[@]}"
-obsidian-convert-imgref-to-md -v "${modified_dirs_full_paths[@]}"
+    # phase 2: commit
+    git -C "$NOTES_DIR" commit -m "update"
+    echo "Status after commit:"
+    git -C "$NOTES_DIR" status
 
-# phase 0: display status
-echo "Status:"
-git -C "$NOTES_DIR" status -s
+    # phase 3: push
+    git -C "$NOTES_DIR" push
+    echo "Status after push:"
+    git -C "$NOTES_DIR" status
+}
 
-# phase 1: stage
-git -C "$NOTES_DIR" add .
-echo "Status after stage:"
-git -C "$NOTES_DIR" status -s
+parse_args "$@"
 
-# phase 2: commit
-git -C "$NOTES_DIR" commit -m "update"
-echo "Status after commit:"
-git -C "$NOTES_DIR" status
+[[ "$push" == 1 ]] && push
 
-# phase 3: push
-git -C "$NOTES_DIR" push
-echo "Status after push:"
-git -C "$NOTES_DIR" status
+[[ "$pull" == 1 ]] && pull
