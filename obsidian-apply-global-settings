@@ -53,13 +53,13 @@ for dir in "${OBSIDIAN_DIRS[@]}"; do
 
     # existing directory cannot be overwitten as symbolic link
     # so it has to be deleted
-    rm -r "$dir/plugins"
+    rm -rf "$dir/plugins"
     ln -s "$GLOBAL_SETTINGS_DIR/plugins" "$dir"
     
-    rm -r "$dir/snippets"
+    rm -rf "$dir/snippets"
     ln -s "$GLOBAL_SETTINGS_DIR/snippets" "$dir"
     
-    rm -r "$dir/themes"
+    rm -rf "$dir/themes"
     ln -s "$GLOBAL_SETTINGS_DIR/themes" "$dir"
 
     ln -sf "$GLOBAL_SETTINGS_DIR/app.json" "$dir/app.json"
