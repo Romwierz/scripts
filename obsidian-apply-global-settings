@@ -7,8 +7,8 @@
 # settings for all the vaults.
 #
 # How to use:
-# 1) Put the dirs and files from some Obsidian Vault (VAULT/.obsidian/) specified below into a folder of your choice
-#    and modify varaible GLOBAL_SETTINGS_DIR accordingly.
+# 1) Put the dirs and files specified below from some Obsidian Vault (VAULT/.obsidian/) into a folder of your choice
+#    and modify variable GLOBAL_SETTINGS_DIR accordingly.
 # 2) Modify variable DST_DIR. The script will search for .obsidian/ directories recursively.
 # 3) Run the script.
 #
