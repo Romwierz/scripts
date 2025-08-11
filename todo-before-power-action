@@ -7,6 +7,6 @@ pkill --full '/opt/brave.com/brave/brave --disable-lcd-text'
 sleep 1
 
 # upload notes to remote repo
-notes-auto-sync push
+git-repo-sync push-notes
 
 exit 0
