@@ -1,3 +1,1 @@
-# scripts
-
-For this moment all of them are bash scripts. Most of them perform pretty specific task.
+Moved to [dotfiles](https://github.com/Romwierz/dotfiles) repo.
